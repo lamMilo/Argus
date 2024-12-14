@@ -1,7 +1,7 @@
 <p align="center"><img src="https://fadedhd.xyz/IMG/Github/Argus-new.jpg"...></p>
 
 <h1 align="center">
-''Argus'' Port Scanner
+**Argus** Port Scanner
 </h1>
 <h2 align="center">
 A simple Portscanner Client written in Python
@@ -29,7 +29,7 @@ A simple Portscanner Client written in Python
 
 
 ### Disclamer.
-|--------------|-----------|
+
 I as the creator of this tool am not resposible for and how the tool is been used.
 Remember to only scan when you are allowed. 
 
