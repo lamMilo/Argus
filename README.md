@@ -28,7 +28,7 @@ A simple Portscanner Client written in Python
 | Darkmode | To eneable Darkmode just check the box in the GUI |
 
 <h3 align="center">
-Disclamer
+Disclaimer
 </h3>
 This tool is intended for educational and authorized use only. Unauthorized use of this tool to scan systems without proper consent is illegal and may violate local, state, and federal laws. The creator of this tool are not responsible for any misuse or damages caused by its usage.
 By using this tool, you agree to abide by all applicable laws and to only use it on systems where you have explicit permission to perform such actions. Always obtain proper authorization before conducting any network scanning.
