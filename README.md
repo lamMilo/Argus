@@ -30,6 +30,6 @@ A simple Portscanner Client written in Python
 <h3 align="center">
 ### Disclamer.
 </h3>
-I as the creator of this tool am not resposible for and how the tool is been used.
-Remember to only scan when you are allowed. 
+This tool is intended for educational and authorized use only. Unauthorized use of this tool to scan systems without proper consent is illegal and may violate local, state, and federal laws. The creator of this tool are not responsible for any misuse or damages caused by its usage.
+By using this tool, you agree to abide by all applicable laws and to only use it on systems where you have explicit permission to perform such actions. Always obtain proper authorization before conducting any network scanning.
 
