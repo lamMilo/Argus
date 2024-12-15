@@ -1,12 +1,12 @@
 __author__ = "Milo"
 __copyright__ = "Copyright 2024, lamMilo"
-__email__ = "admin@ffcld.cloud"
-
+__email__ = "admin@fflcd.cloud"
 
 import socket
 import time
 import threading
 import os
+from urllib import request  # For downloading the background image
 from queue import Queue
 from PyQt5 import QtWidgets, QtGui, QtCore
 
@@ -21,34 +21,81 @@ class PortScannerApp(QtWidgets.QMainWindow):
         self.setWindowTitle("Argus")
         self.setGeometry(100, 100, 600, 400)
 
+        # Download and set background image
+        local_image_path = "argus_background.jpg"
+        self.download_image("https://fadedhd.xyz/IMG/Github/Argus-new.jpg", local_image_path)
+        self.set_background_image(local_image_path)
+
         # Target Input
         self.target_label = QtWidgets.QLabel("Enter target (IP or domain):", self)
         self.target_label.setGeometry(20, 20, 200, 20)
+        self.target_label.setStyleSheet("color: white;")
+
         self.target_input = QtWidgets.QLineEdit(self)
         self.target_input.setGeometry(20, 50, 400, 30)
+        self.target_input.setStyleSheet("""
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+        """)
 
         # Port Range Input
         self.port_label = QtWidgets.QLabel("Enter port range (e.g., 1-500):", self)
         self.port_label.setGeometry(20, 100, 200, 20)
+        self.port_label.setStyleSheet("color: white;")
+
         self.port_input = QtWidgets.QLineEdit(self)
         self.port_input.setGeometry(20, 130, 200, 30)
+        self.port_input.setStyleSheet("""
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+        """)
 
         # Scan Button
         self.scan_button = QtWidgets.QPushButton("Start Scan", self)
         self.scan_button.setGeometry(450, 50, 100, 30)
+        self.scan_button.setStyleSheet("""
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: 1px solid white;
+        """)
+
+        # Connect the scan button to the start_scan method
         self.scan_button.clicked.connect(self.start_scan)
 
         # Output Area
         self.output_area = QtWidgets.QTextEdit(self)
         self.output_area.setGeometry(20, 180, 560, 180)
         self.output_area.setReadOnly(True)
+        self.output_area.setStyleSheet("""
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+        """)
 
         # Dark Mode Toggle
         self.dark_mode_toggle = QtWidgets.QCheckBox("Dark Mode", self)
         self.dark_mode_toggle.setGeometry(450, 130, 100, 30)
+        self.dark_mode_toggle.setStyleSheet("color: white;")
         self.dark_mode_toggle.stateChanged.connect(self.toggle_dark_mode)
 
         self.threadpool = QtCore.QThreadPool()
+
+    def set_background_image(self, image_path):
+        # Create QPalette and set the background brush with the image
+        palette = self.palette()
+        background_image = QtGui.QPixmap(image_path)
+        palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(background_image))
+        self.setPalette(palette)
+
+    def download_image(self, url, save_path):
+        try:
+            response = request.urlopen(url)
+            with open(save_path, 'wb') as f:
+                f.write(response.read())
+        except Exception as e:
+            print(f"Error downloading image: {e}")
 
     def start_scan(self):
         target = self.target_input.text().strip()
