@@ -26,6 +26,8 @@ A simple Portscanner Client written in Python
 | Input | You need to Input the Ports first|
 | Adresses | At the moment you need to enter IP-Adresses, DNS will be added later. |
 | Darkmode | To eneable Darkmode just check the box in the GUI |
+| Background | You are able to change the background with replaceing the Link in the def initUI |
+
 
 <h3 align="center">
 Disclaimer
