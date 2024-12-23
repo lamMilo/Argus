@@ -3,7 +3,6 @@ __copyright__ = "Copyright 2024, lamMilo"
 __email__ = "admin@ffcld.cloud"
 
 import socket
-import time
 import threading
 import os
 from urllib import request  # For downloading the background image
@@ -12,6 +11,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 
 socket.setdefaulttimeout(0.25)
 
+
 class PortScannerApp(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -19,7 +19,7 @@ class PortScannerApp(QtWidgets.QMainWindow):
 
     def initUI(self):
         self.setWindowTitle("Argus")
-        self.setGeometry(100, 100, 600, 400)
+        self.setGeometry(100, 100, 600, 450)  # Adjusted height for progress bar
 
         # Download and set background image
         local_image_path = "argus_background.jpg"
@@ -60,8 +60,6 @@ class PortScannerApp(QtWidgets.QMainWindow):
             color: white;
             border: 1px solid white;
         """)
-
-        # Connect the scan button to the start_scan method
         self.scan_button.clicked.connect(self.start_scan)
 
         # Output Area
@@ -74,6 +72,16 @@ class PortScannerApp(QtWidgets.QMainWindow):
             border: 1px solid white;
         """)
 
+        # Progress Bar
+        self.progress_bar = QtWidgets.QProgressBar(self)
+        self.progress_bar.setGeometry(20, 380, 560, 20)
+        self.progress_bar.setStyleSheet("""
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+        """)
+        self.progress_bar.setValue(0)
+
         # Dark Mode Toggle
         self.dark_mode_toggle = QtWidgets.QCheckBox("Dark Mode", self)
         self.dark_mode_toggle.setGeometry(450, 130, 100, 30)
@@ -83,7 +91,6 @@ class PortScannerApp(QtWidgets.QMainWindow):
         self.threadpool = QtCore.QThreadPool()
 
     def set_background_image(self, image_path):
-        # Create QPalette and set the background brush with the image
         palette = self.palette()
         background_image = QtGui.QPixmap(image_path)
         palette.setBrush(QtGui.QPalette.Window, QtGui.QBrush(background_image))
@@ -122,9 +129,15 @@ class PortScannerApp(QtWidgets.QMainWindow):
         whois_output = self.whois_lookup(target)
         self.output_area.append(whois_output)
 
+        # Reset Progress Bar
+        total_ports = end_port - start_port + 1
+        self.progress_bar.setMaximum(total_ports)
+        self.progress_bar.setValue(0)
+
         # Run Port Scan
         worker = PortScanWorker(target, start_port, end_port)
         worker.signals.result.connect(self.display_result)
+        worker.signals.progress.connect(self.update_progress_bar)
         worker.signals.finished.connect(lambda: self.output_area.append("Scan complete."))
         self.threadpool.start(worker)
 
@@ -138,9 +151,11 @@ class PortScannerApp(QtWidgets.QMainWindow):
     def display_result(self, result):
         self.output_area.append(result)
 
+    def update_progress_bar(self, value):
+        self.progress_bar.setValue(value)
+
     def toggle_dark_mode(self):
         if self.dark_mode_toggle.isChecked():
-            # Apply dark mode stylesheet
             dark_stylesheet = """
             QMainWindow {
                 background-color: #2b2b2b;
@@ -173,12 +188,14 @@ class PortScannerApp(QtWidgets.QMainWindow):
             """
             self.setStyleSheet(dark_stylesheet)
         else:
-            # Reset to default style
             self.setStyleSheet("")
+
 
 class WorkerSignals(QtCore.QObject):
     result = QtCore.pyqtSignal(str)
+    progress = QtCore.pyqtSignal(int)
     finished = QtCore.pyqtSignal()
+
 
 class PortScanWorker(QtCore.QRunnable):
     def __init__(self, target, start_port, end_port):
@@ -190,8 +207,11 @@ class PortScanWorker(QtCore.QRunnable):
 
     def run(self):
         q = Queue()
+        total_ports = self.end_port - self.start_port + 1
+        scanned_ports = 0
 
         def portscan(port):
+            nonlocal scanned_ports
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 s.connect((self.target, port))
@@ -199,6 +219,9 @@ class PortScanWorker(QtCore.QRunnable):
                 s.close()
             except:
                 pass
+            finally:
+                scanned_ports += 1
+                self.signals.progress.emit(scanned_ports)
 
         def threader():
             while True:
@@ -216,6 +239,7 @@ class PortScanWorker(QtCore.QRunnable):
 
         q.join()
         self.signals.finished.emit()
+
 
 if __name__ == '__main__':
     import sys
