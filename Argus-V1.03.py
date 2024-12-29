@@ -23,7 +23,7 @@ class PortScannerApp(QtWidgets.QMainWindow):
 
         # Download and set background image
         local_image_path = "argus_background.jpg"
-        self.download_image("https://fadedhd.xyz/IMG/Github/Argus-new.jpg", local_image_path)
+        self.download_image("https://fadedhd.xyz/IMG/Github/LamMilo/Argus-new.jpg", local_image_path)
         self.set_background_image(local_image_path)
 
         # Target Input
