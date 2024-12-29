@@ -1,4 +1,4 @@
-<p align="center"><img src="https://fadedhd.xyz/IMG/Github/Argus-new.jpg"...></p>
+<p align="center"><img src="https://fadedhd.xyz/IMG/Github/LamMilo/Argus-new.jpg"...></p>
 
 <h1 align="center">
 Argus Port Scanner
