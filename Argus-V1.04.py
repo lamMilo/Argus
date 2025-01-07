@@ -8,9 +8,9 @@ import os
 from urllib import request  # For downloading the background image
 from queue import Queue
 from PyQt5 import QtWidgets, QtGui, QtCore
+import ipaddress
 
 socket.setdefaulttimeout(0.25)
-
 
 class PortScannerApp(QtWidgets.QMainWindow):
     def __init__(self):
@@ -112,14 +112,25 @@ class PortScannerApp(QtWidgets.QMainWindow):
             self.output_area.append("Please enter a target.")
             return
 
+        try:
+            # Validate IP or Domain
+            ipaddress.ip_address(target)  # If it's a valid IP address
+        except ValueError:
+            # If it's not an IP, verify if it's a valid domain
+            if not ("." in target and len(target.split(".")) > 1):
+                self.output_area.append("Invalid target. Enter a valid IP or domain.")
+                return
+
         if not port_range or '-' not in port_range:
             self.output_area.append("Please enter a valid port range (e.g., 1-500).")
             return
 
         try:
             start_port, end_port = map(int, port_range.split('-'))
+            if start_port < 1 or end_port > 65535 or start_port > end_port:
+                raise ValueError
         except ValueError:
-            self.output_area.append("Invalid port range format.")
+            self.output_area.append("Invalid port range. Ports must be between 1 and 65535.")
             return
 
         self.output_area.append(f"Starting scan on target: {target}")
@@ -144,6 +155,8 @@ class PortScannerApp(QtWidgets.QMainWindow):
     def whois_lookup(self, target):
         try:
             output = os.popen(f"whois {target}").read()
+            if not output.strip():
+                return "WHOIS Lookup failed. No data found."
             return f"WHOIS Lookup Results:\n{output}"
         except Exception as e:
             return f"Error performing WHOIS lookup: {e}"
@@ -217,8 +230,13 @@ class PortScanWorker(QtCore.QRunnable):
                 s.connect((self.target, port))
                 self.signals.result.emit(f"Port {port} is open")
                 s.close()
-            except:
-                pass
+            except socket.gaierror:
+                self.signals.result.emit("Error: Invalid target or network issue.")
+                return
+            except socket.timeout:
+                pass  # Port is closed or filtered
+            except Exception as e:
+                self.signals.result.emit(f"Unexpected error on port {port}: {e}")
             finally:
                 scanned_ports += 1
                 self.signals.progress.emit(scanned_ports)
